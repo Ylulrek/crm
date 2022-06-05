@@ -7,6 +7,10 @@
     <settings>
         <setting name="logImpl" value="STDOUT_LOGGING"/>
     </settings>
+    <typeAliases>
+        <package name="com.Ylulrek.crm.settings.domain"/>
+        <package name="com.Ylulrek.crm.workbench.domain"/>
+    </typeAliases>
     <environments default="mydev">
         <environment id="mydev">
             <transactionManager type="JDBC"/>
@@ -19,6 +23,7 @@
         </environment>
     </environments>
     <mappers>
-        <mapper resource="com\Ylulrek\crm\settings\dao\UserDao.xml"/>
+        <package name="com.Ylulrek.crm.settings.dao"/>
+        <package name="com.Ylulrek.crm.workbench.dao"/>
     </mappers>
 </configuration>

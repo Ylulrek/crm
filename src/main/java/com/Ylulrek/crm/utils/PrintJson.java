@@ -37,22 +37,6 @@ public class PrintJson {
 	//将对象解析为json串
 	public static void printJsonObj(HttpServletResponse response, Object obj){
 		
-		/*
-		 * 
-		 * Person p
-		 * 	id name age
-		 * {"id":"?","name":"?","age":?}
-		 * 
-		 * List<Person> pList
-		 * [{"id":"?","name":"?","age":?},{"id":"?","name":"?","age":?},{"id":"?","name":"?","age":?}...]
-		 * 
-		 * Map
-		 * 	key value
-		 * {key:value}
-		 * 
-		 * 
-		 */
-		
 		ObjectMapper om = new ObjectMapper();
 		try {
 			String json = om.writeValueAsString(obj);

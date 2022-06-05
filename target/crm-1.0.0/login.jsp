@@ -13,9 +13,26 @@
 	<script type="text/javascript">
 		$(function (){
 
+			if(window.top!=window){
+				window.top.location=window.location;
+			}
+
 			$("#loginAct").val("");
 
-			$("#loginAct").focus();
+			$("#loginAct").focus(function (){
+				if($("#msg").html()!="") {
+					$("#loginAct").val("");
+					$("#loginPwd").val("");
+					$("#msg").html("");
+				}
+			});
+
+			$("#loginPwd").focus(function (){
+				if($("#msg").html()!="") {
+					$("#loginPwd").val("");
+					$("#msg").html("");
+				}
+			});
 
 			$("#submitBtn").click(function (){
 				login();
@@ -35,7 +52,7 @@
                 return false;
             }
             $.ajax({
-                url:"settings/user/save",
+                url:"settings/user/login.do",
                 data:{
 					"loginAct":loginAct,
 					"loginPwd":loginPwd
@@ -44,10 +61,9 @@
                 dataType:"json",
                 success:function (data){
 					if(data.success){
-
+						window.location.href = "workbench/index.jsp";
 					}else {
 						$("#msg").html(data.msg);
-
 					}
                 }
             })
