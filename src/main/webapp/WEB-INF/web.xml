@@ -66,5 +66,13 @@
     <servlet-name>ClueController</servlet-name>
     <url-pattern>/workbench/clue/getUserList.do</url-pattern>
     <url-pattern>/workbench/clue/save.do</url-pattern>
+    <url-pattern>/workbench/clue/pageList.do</url-pattern>
+    <url-pattern>/workbench/clue/detail.do</url-pattern>
+    <url-pattern>/workbench/clue/getActivityByClueId.do</url-pattern>
+    <url-pattern>/workbench/clue/unbund.do</url-pattern>
+    <url-pattern>/workbench/clue/getActivityListByNameNotByClueId.do</url-pattern>
+    <url-pattern>/workbench/clue/bund.do</url-pattern>
+    <url-pattern>/workbench/clue/getActivityListByName.do</url-pattern>
+    <url-pattern>/workbench/clue/convert.do</url-pattern>
   </servlet-mapping>
 </web-app>

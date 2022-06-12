@@ -7,8 +7,12 @@ import com.Ylulrek.crm.utils.DateTimeUtil;
 import com.Ylulrek.crm.utils.PrintJson;
 import com.Ylulrek.crm.utils.ServiceFactory;
 import com.Ylulrek.crm.utils.UUIDUtil;
+import com.Ylulrek.crm.vo.PaginationVo;
+import com.Ylulrek.crm.workbench.domain.Activity;
 import com.Ylulrek.crm.workbench.domain.Clue;
+import com.Ylulrek.crm.workbench.service.ActivityService;
 import com.Ylulrek.crm.workbench.service.ClueService;
+import com.Ylulrek.crm.workbench.service.impl.ActivityServiceImpl;
 import com.Ylulrek.crm.workbench.service.impl.ClueServiceImpl;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -16,7 +20,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ClueController extends HttpServlet {
 
@@ -29,7 +35,117 @@ public class ClueController extends HttpServlet {
             doGetUserList(request, response);
         } else if ("/workbench/clue/save.do".equals(path)) {
             doSave(request,response);
+        }else if ("/workbench/clue/pageList.do".equals(path)) {
+            doPageList(request,response);
+        }else if ("/workbench/clue/detail.do".equals(path)) {
+            doDetail(request,response);
+        }else if ("/workbench/clue/getActivityByClueId.do".equals(path)) {
+            doGetActivityByClueId(request,response);
+        }else if ("/workbench/clue/unbund.do".equals(path)) {
+            doUnbund(request,response);
+        }else if ("/workbench/clue/getActivityListByNameNotByClueId.do".equals(path)) {
+            doGetActivityListByNameNotByClueId(request,response);
+        }else if ("/workbench/clue/bund.do".equals(path)) {
+            doBund(request,response);
+        }else if ("/workbench/clue/getActivityListByName.do".equals(path)) {
+            doGetActivityListByName(request,response);
+        }else if ("/workbench/clue/convert.do".equals(path)) {
+            doConvert(request,response);
         }
+    }
+
+    private void doConvert(HttpServletRequest request, HttpServletResponse response) {
+
+        String clueId = request.getParameter("clueId");
+        String flag=request.getParameter("flag");
+
+        if("a".equals(flag)){
+            //接受表单中的数据
+
+        }else{
+            //传统请求
+
+        }
+
+    }
+
+    private void doGetActivityListByName(HttpServletRequest request, HttpServletResponse response) {
+        String aname = request.getParameter("aname");
+        ActivityService as= (ActivityService) ServiceFactory.getService(new ActivityServiceImpl());
+        List<Activity> aList=as.getActivityListByName(aname);
+        PrintJson.printJsonObj(response,aList);
+    }
+
+    private void doBund(HttpServletRequest request, HttpServletResponse response) {
+        String clueId = request.getParameter("clueId");
+        String[] activityIds = request.getParameterValues("activityId");
+        ClueService cs= (ClueService) ServiceFactory.getService(new ClueServiceImpl());
+        boolean flag=cs.bund(clueId,activityIds);
+        PrintJson.printJsonFlag(response,flag);
+    }
+
+    private void doGetActivityListByNameNotByClueId(HttpServletRequest request, HttpServletResponse response) {
+        String name = request.getParameter("name");
+        String clueId = request.getParameter("clueId");
+        Map<String,String> map=new HashMap<String,String>();
+        map.put("aname",name);
+        map.put("clueId",clueId);
+        ActivityService as= (ActivityService) ServiceFactory.getService(new ActivityServiceImpl());
+        List<Activity> aList=as.getActivityListByNameNotByClueId(map);
+        PrintJson.printJsonObj(response,aList);
+    }
+
+    private void doUnbund(HttpServletRequest request, HttpServletResponse response) {
+        String id = request.getParameter("id");
+        ClueService cs= (ClueService) ServiceFactory.getService(new ClueServiceImpl());
+        boolean flag=cs.unbund(id);
+        PrintJson.printJsonFlag(response,flag);
+    }
+
+    private void doGetActivityByClueId(HttpServletRequest request, HttpServletResponse response) {
+        String clueId = request.getParameter("clueId");
+        ActivityService as= (ActivityService) ServiceFactory.getService(new ActivityServiceImpl());
+        List<Activity> aList=as.getActivityByClueId(clueId);
+        PrintJson.printJsonObj(response,aList);
+    }
+
+    private void doDetail(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException{
+        String id = request.getParameter("id");
+
+        ClueService cs= (ClueService) ServiceFactory.getService(new ClueServiceImpl());
+        Clue clue=cs.detail(id);
+        request.setAttribute("clue",clue);
+        request.getRequestDispatcher("/workbench/clue/detail.jsp").forward(request,response);
+    }
+
+    private void doPageList(HttpServletRequest request, HttpServletResponse response) {
+        String pageNoStr=request.getParameter("pageNo");
+        String pageSizeStr=request.getParameter("pageSize");
+        String fullname = request.getParameter("fullname");
+        String company=request.getParameter("company");
+        String phone=request.getParameter("phone");
+        String mphone=request.getParameter("mphone");
+        String source=request.getParameter("source");
+        String owner=request.getParameter("owner");
+        String state=request.getParameter("state");
+        int pageNo=Integer.valueOf(pageNoStr);
+        int pageSize=Integer.valueOf(pageSizeStr);
+        int skipCount=(pageNo-1)*pageSize;
+        Map<String,Object> map=new HashMap<String,Object>();
+        map.put("pageSize",pageSize);
+        map.put("skipCount",skipCount);
+        map.put("fullname",fullname);
+        map.put("company",company);
+        map.put("phone",phone);
+        map.put("mphone",mphone);
+        map.put("source",source);
+        map.put("owner",owner);
+        map.put("state",state);
+        ClueService cs= (ClueService) ServiceFactory.getService(new ClueServiceImpl());
+        PaginationVo<Clue> vo=cs.pageList(map);
+        PrintJson.printJsonObj(response,vo);
+
     }
 
     private void doSave(HttpServletRequest request, HttpServletResponse response) {
