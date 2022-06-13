@@ -10,6 +10,7 @@ import com.Ylulrek.crm.utils.UUIDUtil;
 import com.Ylulrek.crm.vo.PaginationVo;
 import com.Ylulrek.crm.workbench.domain.Activity;
 import com.Ylulrek.crm.workbench.domain.Clue;
+import com.Ylulrek.crm.workbench.domain.Tran;
 import com.Ylulrek.crm.workbench.service.ActivityService;
 import com.Ylulrek.crm.workbench.service.ClueService;
 import com.Ylulrek.crm.workbench.service.impl.ActivityServiceImpl;
@@ -54,18 +55,42 @@ public class ClueController extends HttpServlet {
         }
     }
 
-    private void doConvert(HttpServletRequest request, HttpServletResponse response) {
-
+    private void doConvert(HttpServletRequest request, HttpServletResponse response)throws ServletException,IOException{
+        System.out.println("执行线索转换的操作");
         String clueId = request.getParameter("clueId");
-        String flag=request.getParameter("flag");
-
+        //接收是否需要创建交易的标记
+        String flag = request.getParameter("flag");
+        String createBy = ((User)request.getSession().getAttribute("user")).getName();
+        Tran t = null;
+        //如果需要创建交易
         if("a".equals(flag)){
-            //接受表单中的数据
+            t = new Tran();
+            //接收交易表单中的参数
+            String money = request.getParameter("money");
+            String name = request.getParameter("name");
+            String expectedDate = request.getParameter("expectedDate");
+            String stage = request.getParameter("stage");
+            String activityId = request.getParameter("activityId");
+            String id = UUIDUtil.getUUID();
+            String createTime = DateTimeUtil.getSysTime();
 
-        }else{
-            //传统请求
-
+            t.setId(id);
+            t.setMoney(money);
+            t.setName(name);
+            t.setExpectedDate(expectedDate);
+            t.setStage(stage);
+            t.setActivityId(activityId);
+            t.setCreateBy(createBy);
+            t.setCreateTime(createTime);
         }
+        ClueService cs = (ClueService) ServiceFactory.getService(new ClueServiceImpl());
+
+        boolean flag1 = cs.convert(clueId,t,createBy);
+
+        if(flag1){
+            response.sendRedirect(request.getContextPath()+"/workbench/clue/index.jsp");
+        }
+
 
     }
 
