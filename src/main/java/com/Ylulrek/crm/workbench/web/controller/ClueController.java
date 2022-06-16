@@ -34,7 +34,7 @@ public class ClueController extends HttpServlet {
         String path = request.getServletPath();
         if ("/workbench/clue/getUserList.do".equals(path)) {
             doGetUserList(request, response);
-        } else if ("/workbench/clue/save.do".equals(path)) {
+        }else if ("/workbench/clue/save.do".equals(path)) {
             doSave(request,response);
         }else if ("/workbench/clue/pageList.do".equals(path)) {
             doPageList(request,response);
