@@ -4,6 +4,7 @@ import com.Ylulrek.crm.utils.SqlSessionUtil;
 import com.Ylulrek.crm.vo.PaginationVo;
 import com.Ylulrek.crm.workbench.dao.ContactsDao;
 import com.Ylulrek.crm.workbench.dao.CustomerDao;
+import com.Ylulrek.crm.workbench.domain.Activity;
 import com.Ylulrek.crm.workbench.domain.Contacts;
 import com.Ylulrek.crm.workbench.domain.Customer;
 import com.Ylulrek.crm.workbench.service.ContactsService;
@@ -25,5 +26,11 @@ public class ContactsServiceImpl implements ContactsService {
         vo.setTotal(total);
         vo.setDataList(dataList);
         return vo;
+    }
+
+    @Override
+    public List<Contacts> getContactsListByName(String cname) {
+        List<Contacts> cList=contactsDao.getContactsListByName(cname);
+        return cList;
     }
 }

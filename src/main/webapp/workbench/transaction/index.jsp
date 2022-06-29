@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%
 String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() + "/";
 %>
@@ -28,11 +29,11 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 		$("#searchBtn").click(function (){
 			$("#hidden-owner").val($.trim($("#search-owner").val()))
 			$("#hidden-name").val($.trim($("#search-name").val()))
-			$("#hidden-customername").val($.trim($("#search-customername").val()))
+			$("#hidden-customerName").val($.trim($("#search-customerName").val()))
 			$("#hidden-stage").val($.trim($("#search-stage").val()))
 			$("#hidden-type").val($.trim($("#search-type").val()))
 			$("#hidden-source").val($.trim($("#search-source").val()))
-			$("#hidden-contactsname").val($.trim($("#search-contactsname").val()))
+			$("#hidden-contactsName").val($.trim($("#search-contactsName").val()))
 			//pageList(1,2);
 			pageList(1,$("#transactionPage").bs_pagination('getOption', 'rowsPerPage'));
 		})
@@ -49,11 +50,11 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 		$("#all").prop("checked", false);
 		$("#search-owner").val($.trim($("#hidden-owner").val()))
 		$("#search-name").val($.trim($("#hidden-name").val()))
-		$("#search-customername").val($.trim($("#hidden-customername").val()))
+		$("#search-customerName").val($.trim($("#hidden-customerName").val()))
 		$("#search-stage").val($.trim($("#hidden-stage").val()))
 		$("#search-type").val($.trim($("#hidden-type").val()))
 		$("#search-source").val($.trim($("#hidden-source").val()))
-		$("#search-contactsname").val($.trim($("#hidden-contactsname").val()))
+		$("#search-contactsName").val($.trim($("#hidden-contactsName").val()))
 
 		$.ajax({
 			url: "workbench/transaction/pageList.do",
@@ -62,11 +63,11 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				"pageSize": pageSize,
 				"owner": $.trim($("#search-owner").val()),
 				"name": $.trim($("#search-name").val()),
-				"customername": $.trim($("#search-customername").val()),
+				"customerName": $.trim($("#search-customerName").val()),
 				"stage": $.trim($("#search-stage").val()),
 				"type": $.trim($("#search-type").val()),
 				"source": $.trim($("#search-source").val()),
-				"contactsname": $.trim($("#search-contactsname").val())
+				"contactsName": $.trim($("#search-contactsName").val())
 			},
 			type: "get",
 			dataType: "json",
@@ -75,18 +76,18 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				$.each(data.dataList, function (i, n) {
 					html+='<tr>';
 					html+='<td><input type="checkbox" name="xz" value="'+n.id+'" /></td>';
-					html+='<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href=\'detail.jsp\';">'+n.name+'</a></td>';
-					html+='<td>阿里巴巴</td>';
+					html+='<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href=\'workbench/transaction/detail.do?id='+n.id+'\';">'+n.name+'</a></td>';
+					html+='<td>'+n.customerId+'</td>';
 					html+='<td>'+n.stage+'</td>';
 					html+='<td>'+n.type+'</td>';
 					html+='<td>'+n.owner+'</td>';
 					html+='<td>'+n.source+'</td>';
-					html+='<td>马云</td>';
+					html+='<td>'+n.contactsId+'</td>';
 					html+='</tr>';
 				})
 				$("#transactionBody").html(html);
 
-				var totalPages = data.total % pageSize == 0 ? data.total / pageSize : parseInt(data.total / pageSize) + 1;
+                var totalPages=data.total%pageSize==0?data.total/pageSize:parseInt(data.total/pageSize)+1;
 				$("#transactionPage").bs_pagination({
 					currentPage: pageNo, // 页码
 					rowsPerPage: pageSize, // 每页显示的记录条数
@@ -111,11 +112,11 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 <body>
 <input type="hidden" id="hidden-owner"/>
 <input type="hidden" id="hidden-name"/>
-<input type="hidden" id="hidden-customername"/>
+<input type="hidden" id="hidden-customerName"/>
 <input type="hidden" id="hidden-stage"/>
 <input type="hidden" id="hidden-type"/>
 <input type="hidden" id="hidden-source"/>
-<input type="hidden" id="hidden-contactsname"/>
+<input type="hidden" id="hidden-contactsName"/>
 
 	
 	<div>
@@ -150,7 +151,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">客户名称</div>
-				      <input class="form-control" type="text" id="search-customername">
+				      <input class="form-control" type="text" id="search-customerName">
 				    </div>
 				  </div>
 				  
@@ -161,15 +162,9 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				      <div class="input-group-addon">阶段</div>
 					  <select class="form-control" id="search-stage">
 					  	<option></option>
-					  	<option>资质审查</option>
-					  	<option>需求分析</option>
-					  	<option>价值建议</option>
-					  	<option>确定决策者</option>
-					  	<option>提案/报价</option>
-					  	<option>谈判/复审</option>
-					  	<option>成交</option>
-					  	<option>丢失的线索</option>
-					  	<option>因竞争丢失关闭</option>
+						  <c:forEach items="${stageList}" var="s">
+							  <option value="${s.value}">${s.text}</option>
+						  </c:forEach>
 					  </select>
 				    </div>
 				  </div>
@@ -211,7 +206,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">联系人名称</div>
-				      <input class="form-control" type="text" id="search-contactsname">
+				      <input class="form-control" type="text" id="search-contactsName">
 				    </div>
 				  </div>
 				  

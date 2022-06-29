@@ -5,6 +5,10 @@
 
 <mapper namespace="com.Ylulrek.crm.workbench.dao.ContactsDao">
 
+    <select id="getContactsListByName" resultType="Contacts">
+        select id,fullname,email,mphone from tbl_contacts where fullname like '%' #{name} '%'
+    </select>
+
     <select id="getTotalByCondition" resultType="int">
         select count(*)
         from tbl_contacts c

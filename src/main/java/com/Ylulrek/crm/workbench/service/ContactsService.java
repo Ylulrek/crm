@@ -10,4 +10,6 @@ import java.util.Map;
 public interface ContactsService {
 
     PaginationVo<Contacts> pageList(Map<String, Object> map);
+
+    List<Contacts> getContactsListByName(String cname);
 }

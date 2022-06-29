@@ -20,7 +20,9 @@ public class Tran {
 	private String description;
 	private String contactSummary;	//联系纪要
 	private String nextContactTime;	//下次联系时间
-	
+
+	private String possibility;
+
 	public String getId() {
 		return id;
 	}
@@ -129,8 +131,12 @@ public class Tran {
 	public void setNextContactTime(String nextContactTime) {
 		this.nextContactTime = nextContactTime;
 	}
-	
-	
 
-	
+	public String getPossibility() {
+		return possibility;
+	}
+
+	public void setPossibility(String possibility) {
+		this.possibility = possibility;
+	}
 }

@@ -8,10 +8,7 @@ import com.Ylulrek.crm.utils.PrintJson;
 import com.Ylulrek.crm.utils.ServiceFactory;
 import com.Ylulrek.crm.utils.UUIDUtil;
 import com.Ylulrek.crm.vo.PaginationVo;
-import com.Ylulrek.crm.workbench.domain.Activity;
-import com.Ylulrek.crm.workbench.domain.Clue;
-import com.Ylulrek.crm.workbench.domain.Contacts;
-import com.Ylulrek.crm.workbench.domain.Tran;
+import com.Ylulrek.crm.workbench.domain.*;
 import com.Ylulrek.crm.workbench.service.*;
 import com.Ylulrek.crm.workbench.service.impl.*;
 import jakarta.servlet.ServletException;
@@ -39,7 +36,135 @@ public class TranController extends HttpServlet {
             doPageList(request,response);
         }else if ("/workbench/transaction/getCharts.do".equals(path)) {
             doGetCharts(request,response);
+        }else if ("/workbench/transaction/getActivityListByName.do".equals(path)) {
+            doGetActivityListByName(request,response);
+        }else if ("/workbench/transaction/getContactsListByName.do".equals(path)) {
+            doGetContactsListByName(request,response);
+        }else if ("/workbench/transaction/save.do".equals(path)) {
+            doSave(request,response);
+        }else if ("/workbench/transaction/detail.do".equals(path)) {
+            doDetail(request,response);
+        }else if ("/workbench/transaction/getHistoryListByTranId.do".equals(path)) {
+            doGetHistoryListByTranId(request,response);
+        }else if ("/workbench/transaction/changeStage.do".equals(path)) {
+            doChangeStage(request,response);
         }
+    }
+
+    private void doChangeStage(HttpServletRequest request, HttpServletResponse response) {
+        System.out.println("执行改变阶段的操作");
+        String id = request.getParameter("id");
+        String stage = request.getParameter("stage");
+        String money = request.getParameter("money");
+        String expectedDate = request.getParameter("expectedDate");
+        String editTime= DateTimeUtil.getSysTime();
+        String editBy=((User)request.getSession().getAttribute("user")).getName();
+
+        Tran t=new Tran();
+        t.setId(id);
+        t.setMoney(money);
+        t.setStage(stage);
+        t.setEditTime(editTime);
+        t.setEditBy(editBy);
+        t.setExpectedDate(expectedDate);
+
+        TranService ts= (TranService) ServiceFactory.getService(new TranServiceImpl());
+        boolean flag=ts.changeStage(t);
+
+        Map<String,String> pMap= (Map<String, String>) this.getServletContext().getAttribute("pMap");
+        t.setPossibility(pMap.get(stage));
+
+        Map<String,Object> map=new HashMap<String,Object>();
+        map.put("success",flag);
+        map.put("t",t);
+
+        PrintJson.printJsonObj(response,map);
+    }
+
+    private void doGetHistoryListByTranId(HttpServletRequest request, HttpServletResponse response) {
+
+        String tranId = request.getParameter("tranId");
+        TranService ts= (TranService) ServiceFactory.getService(new TranServiceImpl());
+        List<TranHistory> thList =ts.getHistoryListByTranId(tranId);
+        //阶段和可能性之间的对应关系
+        Map<String,String> pMap= (Map<String, String>) this.getServletContext().getAttribute("pMap");
+        for (TranHistory th:thList){
+            String stage=th.getStage();
+            th.setPossibility(pMap.get(stage));
+        }
+        PrintJson.printJsonObj(response,thList);
+    }
+
+    private void doDetail(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException{
+        System.out.println("跳转到详细信息页");
+        String id=request.getParameter("id");
+        TranService ts= (TranService) ServiceFactory.getService(new TranServiceImpl());
+        Tran t=ts.detail(id);
+        //处理可能性
+        String stage=t.getStage();
+        Map<String,String> pMap= (Map<String, String>) this.getServletContext().getAttribute("pMap");
+        String possibility=pMap.get(stage);
+
+        request.setAttribute("t",t);
+        request.setAttribute("possibility",possibility);
+        request.getRequestDispatcher("/workbench/transaction/detail.jsp").forward(request,response);
+    }
+
+    private void doSave(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException{
+        System.out.println("执行添加交易的操作");
+        String id=UUIDUtil.getUUID();
+        String owner=request.getParameter("owner");
+        String money=request.getParameter("money");
+        String name=request.getParameter("name");
+        String expectedDate=request.getParameter("expectedDate");
+        String customerName=request.getParameter("customerName");
+        String stage=request.getParameter("stage");
+        String type=request.getParameter("type");
+        String source =request.getParameter("source");
+        String activityId=request.getParameter("activityId");
+        String contactsId=request.getParameter("contactsId");
+        String createTime= DateTimeUtil.getSysTime();
+        String createBy=((User)request.getSession().getAttribute("user")).getName();
+        String description=request.getParameter("description");
+        String contactSummary=request.getParameter("contactSummary");
+        String nextContactTime=request.getParameter("nextContactTime");
+        Tran t=new Tran();
+        t.setId(id);
+        t.setOwner(owner);
+        t.setMoney(money);
+        t.setName(name);
+        t.setExpectedDate(expectedDate);
+        t.setStage(stage);
+        t.setType(type);
+        t.setSource(source);
+        t.setActivityId(activityId);
+        t.setContactsId(contactsId);
+        t.setCreateTime(createTime);
+        t.setCreateBy(createBy);
+        t.setDescription(description);
+        t.setContactSummary(contactSummary);
+        t.setNextContactTime(nextContactTime);
+        TranService ts= (TranService) ServiceFactory.getService(new TranServiceImpl());
+        boolean flag=ts.save(t,customerName);
+        if(flag){
+            response.sendRedirect(request.getContextPath()+"/workbench/transaction/index.jsp");
+        }
+    }
+
+    private void doGetContactsListByName(HttpServletRequest request, HttpServletResponse response) {
+        String cname = request.getParameter("cname");
+        ContactsService cs= (ContactsService) ServiceFactory.getService(new ContactsServiceImpl());
+        List<Contacts> cList=cs.getContactsListByName(cname);
+        PrintJson.printJsonObj(response,cList);
+    }
+
+    private void doGetActivityListByName(HttpServletRequest request, HttpServletResponse response) {
+        String aname = request.getParameter("aname");
+        ActivityService as= (ActivityService) ServiceFactory.getService(new ActivityServiceImpl());
+        List<Activity> aList=as.getActivityListByName(aname);
+        PrintJson.printJsonObj(response,aList);
     }
 
     private void doGetCharts(HttpServletRequest request, HttpServletResponse response) {
@@ -55,11 +180,11 @@ public class TranController extends HttpServlet {
         String pageSizeStr=request.getParameter("pageSize");
         String owner=request.getParameter("owner");
         String name = request.getParameter("name");
-        String customerId = request.getParameter("customername");
+        String customerName = request.getParameter("customerName");
         String stage=request.getParameter("stage");
         String type=request.getParameter("type");
         String source=request.getParameter("source");
-        String contactsId=request.getParameter("contactsname");
+        String contactsName=request.getParameter("contactsName");
         int pageNo=Integer.valueOf(pageNoStr);
         int pageSize=Integer.valueOf(pageSizeStr);
         int skipCount=(pageNo-1)*pageSize;
@@ -68,11 +193,11 @@ public class TranController extends HttpServlet {
         map.put("skipCount",skipCount);
         map.put("owner",owner);
         map.put("name",name);
-        map.put("customerId",customerId);
+        map.put("customerName",customerName);
         map.put("stage",stage);
         map.put("type",type);
         map.put("source",source);
-        map.put("contactsId",contactsId);
+        map.put("contactsName",contactsName);
         TranService ts= (TranService) ServiceFactory.getService(new TranServiceImpl());
         PaginationVo<Tran> vo=ts.pageList(map);
         PrintJson.printJsonObj(response,vo);

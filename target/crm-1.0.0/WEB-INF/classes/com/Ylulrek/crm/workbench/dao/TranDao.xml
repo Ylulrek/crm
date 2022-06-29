@@ -5,6 +5,42 @@
 
 <mapper namespace="com.Ylulrek.crm.workbench.dao.TranDao">
 
+    <update id="changeStage">
+        update tbl_tran set stage=#{stage},editBy=#{editBy},editTime=#{editTime} where id=#{id}
+    </update>
+
+    <select id="detail" resultType="Tran">
+        select
+            t.id,
+            u.name as owner,
+            t.money,
+            t.name,
+            t.expectedDate,
+            c1.name as customerId,
+            t.stage,
+            t.type,
+            t.source,
+            a.name as activityId,
+            c2.fullname as contactsId,
+            t.createBy,
+            t.createTime,
+            t.editBy,
+            t.editTime,
+            t.description,
+            t.contactSummary,
+            t.nextContactTime
+            from tbl_tran t
+            join tbl_user u
+            on t.owner=u.id
+            join tbl_customer c1
+            on t.customerId=c1.id
+            left join tbl_activity a
+            on t.activityId=a.id
+            left join tbl_contacts c2
+            on t.contactsId=c2.id
+            where t.id=#{id}
+    </select>
+
     <select id="getCharts" resultType="map">
         select count(*) as value,stage as name from tbl_tran group by stage
     </select>
@@ -31,8 +67,8 @@
                 and t.name like '%' #{name} '%'
             </if>
 
-            <if test="customerId!=null and customerId!=''">
-                and co.name like '%' #{customerId} '%'
+            <if test="customerName!=null and customerName!=''">
+                and co.name like '%' #{customerName} '%'
             </if>
 
             <if test="stage!=null and stage!=''">
@@ -79,8 +115,8 @@
                 and t.name like '%' #{name} '%'
             </if>
 
-            <if test="customerId!=null and customerId!=''">
-                and co.name like '%' #{customerId} '%'
+            <if test="customerName!=null and customerName!=''">
+                and co.name like '%' #{customerName} '%'
             </if>
 
             <if test="stage!=null and stage!=''">
@@ -95,8 +131,8 @@
                 and c.source like '%' #{source} '%'
             </if>
 
-            <if test="contactsId!=null and contactsId!=''">
-                and cs.fullname like '%' #{contactsId} '%'
+            <if test="contactsName!=null and contactsName!=''">
+                and cs.fullname like '%' #{contactsName} '%'
             </if>
         </where>
         order by t.createTime desc
